@@ -10,3 +10,6 @@ hello.o:
 
 test.o: lib/catch.h
 	g++ test/hello_test.cpp -o make/test $(CFLAGS)
+
+clean:
+	rm make/*
