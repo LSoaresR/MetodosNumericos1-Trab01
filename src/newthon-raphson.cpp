@@ -1,8 +1,13 @@
+#include "Dados.h"
+using namespace std;
 
 class NewthonRaphson {
   public:
     double constante1;
     double constante2;
+    Dados iteracoesNRO;
+    vector<Dados> iteracoesNRFL;
+    vector<Dados> iteracoesCalibrado;
 
     NewthonRaphson(double constante1, double constante2, int n) {
       this->constante1 = constante1;
@@ -29,5 +34,9 @@ class NewthonRaphson {
       der_f = (f(x + h) - f(x))/h;
 
       return der_f;
+    }
+
+    double calibrarSistema(){
+      return 0.0;
     }
 };

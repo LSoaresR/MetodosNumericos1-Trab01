@@ -3,6 +3,7 @@
 
 #include "catch.h"
 #include "newthon-raphson.cpp"
+#include "Dados.cpp"
 
 SCENARIO("NewthonRaphson") {
   NewthonRaphson newton = NewthonRaphson(2, 4, 1);
@@ -21,5 +22,9 @@ SCENARIO("NewthonRaphson") {
   GIVEN("calcularDevidada") {
     double resultado = newton.calcularDerivada(2);
     REQUIRE(std::abs(resultado - 30) < erro);
+  }
+
+  GIVEN("calibrarSistema") {
+    REQUIRE(newton.calibrarSistema() == 0.0);
   }
 }
