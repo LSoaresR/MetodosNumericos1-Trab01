@@ -6,18 +6,20 @@
 
 SCENARIO("NewthonRaphson") {
   NewthonRaphson newton = NewthonRaphson(2, 4, 1);
+  double erro = 0.0001;
 
   GIVEN("calcularNRO") {
-    REQUIRE(newton.calcularNRO(0.5, 0.0001, 0.0001) == 0.3376068);
+    double resultado = newton.calcularNRO(0.5, erro, erro);
+    REQUIRE(std::abs(resultado - 0.3376068) < erro);
   }
 
   GIVEN("calcularNRFL") {
-    REQUIRE(newton.calcularNRFL(0, 0, 0, 0) == 0);
+    double resultado = newton.calcularNRFL(0, 0, 0, 0);
+    REQUIRE(std::abs(resultado - 0) < erro);
   }
 
   GIVEN("calcularDevidada") {
     double resultado = newton.calcularDerivada(2);
-    REQUIRE(resultado > 30.000002);
-    REQUIRE(resultado < 30.000003);
+    REQUIRE(std::abs(resultado - 30) < erro);
   }
 }
