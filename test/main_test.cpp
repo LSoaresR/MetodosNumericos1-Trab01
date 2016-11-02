@@ -5,7 +5,7 @@
 #include "newthon-raphson.cpp"
 
 SCENARIO("NewthonRaphson") {
-  NewthonRaphson newton = NewthonRaphson(0, 0);
+  NewthonRaphson newton = NewthonRaphson(2, 4, 1);
 
   GIVEN("calcularNRO") {
     REQUIRE(newton.calcularNRO(0.5, 0.0001, 0.0001) == 0.3376068);
@@ -16,6 +16,8 @@ SCENARIO("NewthonRaphson") {
   }
 
   GIVEN("calcularDevidada") {
-    REQUIRE(newton.calcularDerivada() == 30.0);
+    double resultado = newton.calcularDerivada(2);
+    REQUIRE(resultado > 30.000002);
+    REQUIRE(resultado < 30.000003);
   }
 }

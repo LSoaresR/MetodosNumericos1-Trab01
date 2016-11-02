@@ -17,7 +17,17 @@ class NewthonRaphson {
       return 0;
     }
 
-    double calcularDerivada() {
-      return 30.0;
+    double f(double x){
+      return constante2*(x*x*x) - 9*constante1*x + 3;
+    }
+
+    double calcularDerivada(double x) {
+      double der_f, h;
+
+      h = 0.0000001;
+
+      der_f = (f(x + h) - f(x))/h;
+
+      return der_f;
     }
 };
