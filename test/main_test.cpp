@@ -4,6 +4,7 @@
 #include "catch.h"
 #include "newthon-raphson.cpp"
 #include "Dados.cpp"
+#include <cmath>
 
 SCENARIO("NewthonRaphson") {
   NewthonRaphson newton = NewthonRaphson(2, 4, 1);
@@ -15,8 +16,8 @@ SCENARIO("NewthonRaphson") {
   }
 
   GIVEN("calcularNRFL") {
-    double resultado = newton.calcularNRFL(0, 0, 0, 0);
-    REQUIRE(std::abs(resultado - 0) < erro);
+    double resultado = newton.calcularNRFL(0.5, erro, erro, 0.1);
+    REQUIRE(std::abs(resultado - 0.0833655208) < erro);
   }
 
   GIVEN("calcularDevidada") {
