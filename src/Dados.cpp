@@ -6,12 +6,13 @@ using namespace std;
 Dados::Dados(){	
 }
 
-Dados::Dados(vector<double> x, vector<double> phi, vector<double> fx, vector<double> fx_der, double lambda) {
+Dados::Dados(vector<double> x, vector<double> phi, vector<double> fx, vector<double> fx_der, double lambda, double raiz) {
 	this->x.swap(x);
 	this->phi.swap(phi);
 	this->fx.swap(fx);
 	this->fx_der.swap(fx_der);
 	this->lambda;
+	this->raiz;
 }
 
 //SETS
@@ -35,6 +36,10 @@ void Dados::setLambda(double lambda){
 	this->lambda = lambda;
 }
 
+void Dados::setRaiz(double raiz){
+	this->raiz = raiz;
+}
+
 //GETS 
 vector<double> Dados::getX() {
 	return x;
@@ -54,4 +59,8 @@ vector<double> Dados::getFx_der() {
 
 double Dados::getLambda(){
 	return lambda;
+}
+
+double Dados::getRaiz(){
+	return raiz;
 }
