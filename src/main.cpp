@@ -96,7 +96,7 @@ Dados NewtonRaphsonFL(F f, double xinicial, double erro1, double erro2, double l
     dados.setX(x0);
 
     double h = 0;
-    if(abs(f(x0)) < lambda){
+    if(abs(f(x0)) > lambda){
       h = f(x0)/calcularDerivada(f, x0);
       dados.setFx_der(calcularDerivada(f, x0));
     }
@@ -174,36 +174,70 @@ void calibrarSistema(double x, double y, double erro, double lambda){
     cout << "  f(Xk)    | " << dados.getFx()[i] << endl;
     cout << "  f\'(Xk)   | "<< dados.getFx_der()[i] << endl;
     cout << " Intervalo | "<< abs(dados.getX()[i+1]-dados.getX()[i]) << endl;
-    cout << "---------------------------------------" << endl;
+    cout << "_______________________________________" << endl << endl;
   }
+  cout << "    Raiz   | " << dados.getRaiz() << endl;
+  cout << "_______________________________________" << endl << endl;
+}
+
+void quadroRespostaNRO(double x, double y, double xinicial, double erro1, double erro2, double miter){
+  a3 = x;
+  a2 = y;
+  Dados dados = NewtonRaphson(F, xinicial, erro1, erro2, miter);
+
+  cout << endl << endl;
+  cout << "-----------------------------------------" << endl;
+  cout << "Quadro para o NewtonRaphson Original" << endl;
+  cout << "-----------------------------------------" << endl << endl;
+
+  for(int i = 0; i < dados.getX().size(); i++){
+    cout << "     k     | " << i << endl;
+    cout << "    Xk     | " << dados.getX()[i] << endl;
+    cout << "  f(Xk)    | " << dados.getFx()[i] << endl;
+    cout << "  f\'(Xk)   | "<< dados.getFx_der()[i] << endl;
+    cout << " Intervalo | "<< abs(dados.getX()[i+1]-dados.getX()[i]) << endl;
+    cout << "_______________________________________" << endl << endl;
+  }
+  cout << "    Raiz   | " << dados.getRaiz() << endl;
+  cout << "_______________________________________" << endl << endl;
 }
 
 int main() {
 
   calibrarSistema(1, 1, 0.05, 0.05);
 
-  double err = 0.05;
+  quadroRespostaNRO(2, 2, 2, 0.0001, 0.0001, 1000);
 
-  cout << "NewtonRaphson:\n";
-  Dados dados = NewtonRaphson(F, 0.5, err, 100);
-  for (int i = 0; i < dados.getX().size(); ++i){
-    cout << "X na iteracao " << i << " eh " << dados.getX()[i] << "\n";
-  }
-  cout << "\n";
-  Dados dados2 = NewtonRaphson(F, 1, err, 100);
-    for (int i = 0; i < dados2.getX().size(); ++i){
-    cout << "X na iteracao " << i << " eh " << dados2.getX()[i] << "\n";
-  }
-  cout << "\nNewtonRaphsonFL:\n";
-  Dados dados3 = NewtonRaphsonFL(F, 0.5, err, 0.05);
-  for (int i = 0; i < dados3.getX().size(); ++i){
-    cout << "X na iteracao " << i << " eh " << dados3.getX()[i] << "\n";
-  }
-  cout << "\n";
-  Dados dados4 = NewtonRaphsonFL(F, 1, err, 0.05);
-    for (int i = 0; i < dados4.getX().size(); ++i){
-    cout << "X na iteracao " << i << " eh " << dados4.getX()[i] << "\n";
-  }
+  // double err = 0.05;
+
+  // cout << "NewtonRaphson:\n";
+  // Dados dados = NewtonRaphson(F, 0.5, err, 100);
+  // for (int i = 0; i < dados.getX().size(); ++i){
+  //   cout << "X na iteracao " << i << " eh " << dados.getX()[i] << "\n";
+  // }
+  // cout << "Raiz: " << dados.getRaiz() << endl;
+
+  // cout << "\n";
+  // Dados dados2 = NewtonRaphson(F, 1, err, 100);
+  //   for (int i = 0; i < dados2.getX().size(); ++i){
+  //   cout << "X na iteracao " << i << " eh " << dados2.getX()[i] << "\n";
+  // }
+  // cout << "Raiz: " << dados2.getRaiz() << endl;
+
+  // cout << "\nNewtonRaphsonFL:\n";
+  // Dados dados3 = NewtonRaphsonFL(F, 0.5, err, 0.05);
+  // for (int i = 0; i < dados3.getX().size(); ++i){
+  //   cout << "X na iteracao " << i << " eh " << dados3.getX()[i] << "\n";
+  // }
+  // cout << "Raiz: " << dados3.getRaiz() << endl;
+  // cout << "Last: " << dados3.getX()[dados3.getX().size()-1] << endl;
+
+  // cout << "\n";
+  // Dados dados4 = NewtonRaphsonFL(F, 1, err, 0.05);
+  //   for (int i = 0; i < dados4.getX().size(); ++i){
+  //   cout << "X na iteracao " << i << " eh " << dados4.getX()[i] << "\n";
+  // }
+  // cout << "Raiz: " << dados4.getRaiz() << endl;
 
   return 0;
 }
