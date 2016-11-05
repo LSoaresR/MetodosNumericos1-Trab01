@@ -7,8 +7,11 @@
 
 using namespace std;
 
+double a3 = 1;
+double a2 = 1;
+
 double F(double x) {
-  return x*x*x - 9*x + 3;
+  return a3*x*x*x - 9*a2*x + 3;
 }
 
 template <class F>
@@ -39,8 +42,9 @@ Dados NewtonRaphson(F f, double x0, double err1, double err2, int miter) {
     dados.setFx_der(calcularDerivada(f, x0)); //insere o valor de F'x no vetor de F'x
 
     //printf("The approximation's value after %d iteration is %.12lf\n",iter,x1);
-    if(abs(h)<err1 || abs(x1 - x0) < err2) {
+    if(abs(f(x1))<err1 || abs(x1 - x0) < err2) { //Alterei h para f(x1) - Marcos
       root=x1;
+      dados.setRaiz(x1);
       break;
     }
     else
@@ -74,46 +78,110 @@ double FL(F f, double xk, double xw, double lambda) {
 }
 
 template <class F>
-Dados NewtonRaphsonFL(F f, double xinicial, double erro1, double erro2, double lambda) {
-  double xk = xinicial;
-  double xw = xk;
-  double xk_p;
-  bool verif = true;
+Dados NewtonRaphsonFL(F f, double xinicial, double erro1, double erro2, double lambda){
+  double x0 = xinicial;
+  double e1 = erro1;
+  double e2 = erro2;
+  double x1 = 0.0;
+  double ant = 0.0;
   Dados dados;
-
-  if(abs(f(xk)) < erro1){
-    dados.setX(xk);
+  
+  if(abs(f(x0)) < e1){
+    dados.setX(x0);
     return dados;
   }
-  while(verif) {
-    double h = (f(xk)/FL(f, xk, xw, lambda));
-    xk_p = xk - (f(xk)/FL(f, xk, xw, lambda));
 
-    dados.setX(xk); //insere o xk no vetor de x's
-    dados.setPhi(h); //insere o valor de Phi no vetor de Phi's
-    dados.setFx(f(xk)); //insere o valor de Fx no vetor de Fx's
-    dados.setFx_der(FL(f, xk, xw, lambda)); //insere o valor de F'x no vetor de F'x
+  ant = x0;
+  while(true){
+    dados.setX(x0);
 
-    if(std::abs(f(xk_p) < erro1) || abs(xk_p - xk) < erro2) {
-      verif = false;
+    double h = 0;
+    if(abs(f(x0)) < lambda){
+      h = f(x0)/calcularDerivada(f, x0);
+      dados.setFx_der(calcularDerivada(f, x0));
+    }
+    else{
+      h = f(x0)/calcularDerivada(f, ant);
+      dados.setFx_der(calcularDerivada(f, ant));
     }
 
-    if(std::abs(calcularDerivada(f, xk_p)) >= lambda) {
-      xw = xk_p;
-    }
+    x1 = x0 - h;
 
-    xk = xk_p;
-  }	
-  return dados;
+    dados.setPhi(h);
+    dados.setFx(f(x0));
+    
+    if(abs(f(x1)) < e1 || abs(x1-x0) < e2){
+      dados.setRaiz(x1);
+      return dados;
+    }
+    ant = x0;
+    x0 = x1;
+  }
 }
+
+// template <class F>
+// Dados NewtonRaphsonFL(F f, double xinicial, double erro1, double erro2, double lambda) {
+//   double xk = xinicial;
+//   double xw = xk;
+//   double xk_p;
+//   bool verif = true;
+//   Dados dados;
+
+//   if(abs(f(xk)) < erro1){
+//     dados.setX(xk);
+//     return dados;
+//   }
+//   while(verif) {
+//     double h = (f(xk)/FL(f, xk, xw, lambda));
+//     xk_p = xk - h; //Alterei (f(xk)/FL(f, xk, xw, lambda)) por h - Marcos
+
+//     dados.setX(xk); //insere o xk no vetor de x's
+//     dados.setPhi(h); //insere o valor de Phi no vetor de Phi's
+//     dados.setFx(f(xk)); //insere o valor de Fx no vetor de Fx's
+//     dados.setFx_der(FL(f, xk, xw, lambda)); //insere o valor de F'x no vetor de F'x
+
+//     if(std::abs(f(xk_p) < erro1) || abs(xk_p - xk) < erro2) {
+//       verif = false;
+//     }
+
+//     if(std::abs(calcularDerivada(f, xk_p)) >= lambda) {
+//       xw = xk_p;
+//     }
+
+//     xk = xk_p;
+//   }	
+//   return dados;
+// }
 
 template <class F>
 Dados NewtonRaphsonFL(F f, double xinicial, double erro, double lambda) {
   return NewtonRaphsonFL(f, xinicial, erro, erro, lambda);
 }
 
+void calibrarSistema(double x, double y, double erro, double lambda){
+  a3 = x;
+  a2 = y;
+
+  cout << "NewtonRaphsonFL Marcos:" << endl << endl;
+  Dados dados2 = NewtonRaphsonFL(F, 1, erro, erro, lambda);
+  for(int j = 0; j < dados2.getX().size(); ++j){
+    cout << "X na iteracao ssdsd " << j << " eh " << dados2.getX()[j] << endl;
+  }
+  cout << "Raiz: " << dados2.getRaiz() << endl << endl;
+
+  cout << "NewtonRaphson:" << endl << endl;
+  Dados dados3 = NewtonRaphson(F, 1, erro, erro, 100);
+  for(int j = 0; j < dados3.getX().size(); ++j){
+    cout << "X na iteracao ssdsd " << j << " eh " << dados3.getX()[j] << endl;
+  }
+  cout << "Raiz: " << dados3.getRaiz() << endl << endl;
+}
+
 int main() {
-  double err = 0.0001;
+
+  calibrarSistema(1, 1, 0.05, 0.05);
+
+  double err = 0.05;
 
   cout << "NewtonRaphson:\n";
   Dados dados = NewtonRaphson(F, 0.5, err, 100);
