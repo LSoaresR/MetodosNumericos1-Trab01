@@ -51,13 +51,6 @@ Dados NewtonRaphson(F f, double x0, double err1, double err2, int miter) {
       x0=x1;
     iter++;
   }
-  /*if(root==x1) {
-    printf("The root is: %.12lf\n",root);
-    double fncvalue = f(root);
-    printf("Value of F(root) is: %.12lf",fncvalue);
-  }
-  else
-    printf("The unsufficent number of iteration");*/
   return dados;
 }
 
@@ -120,40 +113,6 @@ Dados NewtonRaphsonFL(F f, double xinicial, double erro1, double erro2, double m
     k++;
   }
 }
-
-// template <class F>
-// Dados NewtonRaphsonFL(F f, double xinicial, double erro1, double erro2, double lambda) {
-//   double xk = xinicial;
-//   double xw = xk;
-//   double xk_p;
-//   bool verif = true;
-//   Dados dados;
-
-//   if(abs(f(xk)) < erro1){
-//     dados.setX(xk);
-//     return dados;
-//   }
-//   while(verif) {
-//     double h = (f(xk)/FL(f, xk, xw, lambda));
-//     xk_p = xk - h; //Alterei (f(xk)/FL(f, xk, xw, lambda)) por h - Marcos
-
-//     dados.setX(xk); //insere o xk no vetor de x's
-//     dados.setPhi(h); //insere o valor de Phi no vetor de Phi's
-//     dados.setFx(f(xk)); //insere o valor de Fx no vetor de Fx's
-//     dados.setFx_der(FL(f, xk, xw, lambda)); //insere o valor de F'x no vetor de F'x
-
-//     if(std::abs(f(xk_p) < erro1) || abs(xk_p - xk) < erro2) {
-//       verif = false;
-//     }
-
-//     if(std::abs(calcularDerivada(f, xk_p)) >= lambda) {
-//       xw = xk_p;
-//     }
-
-//     xk = xk_p;
-//   }	
-//   return dados;
-// }
 
 template <class F>
 Dados NewtonRaphsonFL(F f, double xinicial, double erro, double miter, double lambda) {
