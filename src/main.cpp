@@ -202,11 +202,35 @@ void quadroRespostaNRO(double x, double y, double xinicial, double erro1, double
   cout << "_______________________________________" << endl << endl;
 }
 
+void quadroRespostaNRFL(double x, double y, double xinicial, double erro1, double erro2, double lambda){
+  a3 = x;
+  a2 = y;
+  Dados dados = NewtonRaphsonFL(F, xinicial, erro1, erro2, lambda);
+
+  cout << endl << endl;
+  cout << "-----------------------------------------" << endl;
+  cout << "Quadro para o NewtonRaphson FL" << endl;
+  cout << "-----------------------------------------" << endl << endl;
+
+  for(int i = 0; i < dados.getX().size(); i++){
+    cout << "     k     | " << i << endl;
+    cout << "    Xk     | " << dados.getX()[i] << endl;
+    cout << "  f(Xk)    | " << dados.getFx()[i] << endl;
+    cout << "  f\'(Xk)   | "<< dados.getFx_der()[i] << endl;
+    cout << " Intervalo | "<< abs(dados.getX()[i+1]-dados.getX()[i]) << endl;
+    cout << "_______________________________________" << endl << endl;
+  }
+  cout << "    Raiz   | " << dados.getRaiz() << endl;
+  cout << "_______________________________________" << endl << endl;
+}
+
 int main() {
 
   calibrarSistema(1, 1, 0.05, 0.05);
 
   quadroRespostaNRO(2, 2, 2, 0.0001, 0.0001, 1000);
+
+  quadroRespostaNRFL(2, 2, 2, 0.0001, 0.0001, 0.0001);
 
   // double err = 0.05;
 
