@@ -162,19 +162,20 @@ void calibrarSistema(double x, double y, double erro, double lambda){
   a3 = x;
   a2 = y;
 
-  cout << "NewtonRaphsonFL Marcos:" << endl << endl;
-  Dados dados2 = NewtonRaphsonFL(F, 1, erro, erro, lambda);
-  for(int j = 0; j < dados2.getX().size(); ++j){
-    cout << "X na iteracao ssdsd " << j << " eh " << dados2.getX()[j] << endl;
-  }
-  cout << "Raiz: " << dados2.getRaiz() << endl << endl;
+  cout << endl << endl;
+  cout << "------------------------------------------------------------------------" << endl;
+  cout << "Calibragem do Sistema com a3 = 1 | a2 = 1 | lambda = 0.05 | erro = 0.05" << endl;
+  cout << "------------------------------------------------------------------------" << endl << endl;
 
-  cout << "NewtonRaphson:" << endl << endl;
-  Dados dados3 = NewtonRaphson(F, 1, erro, erro, 100);
-  for(int j = 0; j < dados3.getX().size(); ++j){
-    cout << "X na iteracao ssdsd " << j << " eh " << dados3.getX()[j] << endl;
+  Dados dados = NewtonRaphsonFL(F, 1, erro, erro, lambda);
+  for(int i = 0; i < dados.getX().size(); i++){
+    cout << "     k     | " << i << endl;
+    cout << "    Xk     | " << dados.getX()[i] << endl;
+    cout << "  f(Xk)    | " << dados.getFx()[i] << endl;
+    cout << "  f\'(Xk)   | "<< dados.getFx_der()[i] << endl;
+    cout << " Intervalo | "<< abs(dados.getX()[i+1]-dados.getX()[i]) << endl;
+    cout << "---------------------------------------" << endl;
   }
-  cout << "Raiz: " << dados3.getRaiz() << endl << endl;
 }
 
 int main() {
