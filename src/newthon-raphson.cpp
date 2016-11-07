@@ -2,12 +2,18 @@
 #include <cmath>
 #include <stdio.h>
 #include <iostream>
+#include <vector>
+
 using namespace std;
 
 class NewthonRaphson {
  
 public:
 	
+double a3 ;
+double a2 ;
+vector<double> lamb;
+
 double F(double x) {
   return a3*x*x*x - 9*a2*x + 3;
 }
@@ -60,15 +66,92 @@ Dados NewtonRaphson(double x0, double err, int miter) {
   return NewtonRaphson(x0, err, err, miter);
 }
 
-template <class F>
-double FL(F f, double xk, double xw, double lambda) {
-  double dfxk = calcularDerivada(f, xk);
+double FL(double xk, double xw, double lambda) {
+  double dfxk = calcularDerivada(xk);
 
   if(abs(dfxk) > lambda) {
     return dfxk;
   } else {
-    return calcularDerivada(f, xw);
+    return calcularDerivada( xw);
   }
+}
+// Newthon Raphson com n lambdas
+vector<Dados> NewtonRaphsonFLN(double xinicial, double erro1, double erro2, double miter, int n){
+  double x0 = xinicial;
+  double e1 = erro1;
+  double e2 = erro2;
+  double x1 = 0.0;
+  double ant = 0.0;
+  int k = 0;
+  vector<Dados> data;
+  Dados dados;
+  double lambda[n];
+  double A3[n]; double A2[n];
+  //entrada de dados
+	for(int i = 0; i < n; i++) {
+		cout << "Lambda " << i << ": " << endl;
+		cin >> lambda[i];
+		cout << "A3 " << i << ": " << endl;
+		cin >> A3[i];
+		cout << "A2 " << i << ": " << endl;
+		cin >> A2[i];
+	}
+	
+ for(int i = 0; i < n; i++){
+	//valores de a3 e a2, irão mudar de acordo os valores no vetor
+	this->a3 = A3[i];
+	this->a2 = A2[i];
+			  
+  if(abs(F(x0)) < e1){
+    dados.setX(x0);
+    data.push_back(dados);
+  }
+  
+  else {
+  
+
+  ant = x0;
+  while(true){
+    dados.setX(x0);
+
+    double h = 0;
+    if(abs(calcularDerivada(x0)) > lambda[i]){
+      h = F(x0)/calcularDerivada(x0);
+      dados.setFx_der(calcularDerivada(x0));
+      //condição de criterio de xw
+      if(abs(calcularDerivada(x0)) >= lambda[i]) {
+      	ant = x0;
+	  }
+      
+    }
+    else{
+      h = F(x0)/calcularDerivada(ant);
+      dados.setFx_der(calcularDerivada(ant));
+    }
+
+    x1 = x0 - h;
+
+    dados.setPhi(h);
+    dados.setFx(F(x0));
+    
+    if(abs(F(x1)) < e1 || abs(x1-x0) < e2 || k > miter){
+      dados.setRaiz(x1);
+      //data[i].push_back(dados);
+      break;
+	  //return dados;
+    }
+    x0 = x1;
+    k++;
+  }
+ }
+ 
+ data.push_back(dados); 
+}
+
+for(int k = 0; k < n; k++) {
+	this->lamb.push_back(lambda[k]);
+}
+return data;
 }
 
 
@@ -94,7 +177,11 @@ Dados NewtonRaphsonFL(double xinicial, double erro1, double erro2, double miter,
     if(abs(calcularDerivada(x0)) > lambda){
       h = F(x0)/calcularDerivada(x0);
       dados.setFx_der(calcularDerivada(x0));
-      ant = x0;
+      //condição de criterio de xw
+      if(abs(calcularDerivada(x0)) >= lambda) {
+      	ant = x0;
+	  }
+      
     }
     else{
       h = F(x0)/calcularDerivada(ant);
@@ -194,6 +281,40 @@ void quadroRespostaNRFL(double x, double y, double xinicial, double erro1, doubl
   cout << "_______________________________________" << endl << endl;
 }
 
+//Newthon Raphson com n lambdas
+void NquadroRespostaNRFL(double x, double y, double xinicial, double erro1, double erro2, double miter, int n){
+  a3 = x;
+  a2 = y;
+  vector<Dados> dados = NewtonRaphsonFLN(xinicial, erro1, erro2, miter, n);
+
+  cout << endl << endl;
+  cout << "-----------------------------------------" << endl;
+  cout << "Quadro para o NewtonRaphson FL" << endl;
+  cout << "-----------------------------------------" << endl << endl;
+
+//Laço para todos os lambdas
+for(int j = 0; j < n ; j++) {
+  cout << "-----------------------------------------" << endl;
+  cout << "LAMBDA: " << lamb[j] <<  endl;
+  cout << "-----------------------------------------" << endl << endl;	
+
+  for(int i = 0; i < dados[j].getX().size(); i++){
+    cout << "     k     | " << i << endl;
+    cout << "    Xk     | " << dados[j].getX()[i] << endl;
+    cout << "  f(Xk)    | " << dados[j].getFx()[i] << endl;
+    cout << "  f\'(Xk)   | "<< dados[j].getFx_der()[i] << endl;
+    if(i == 0)
+      cout << " Intervalo |    ---   "<< endl;
+    else
+      cout << " Intervalo | "<< abs(dados[j].getX()[i]-dados[j].getX()[i-1]) << endl;
+    cout << "_______________________________________" << endl << endl;
+  }
+  cout << "    Raiz   | " << dados[j].getRaiz() << endl;
+  cout << "_______________________________________" << endl << endl;
+  
+}
+}
+
 void quadroComparativo(double x, double y, double xinicial, double erro1, double erro2, double miter, double lambda){
   a3 = x;
   a2 = y;
@@ -260,8 +381,6 @@ void quadroComparativo(double x, double y, double xinicial, double erro1, double
   cout << "_______________________________________" << endl << endl;
 }
 
- private:
-    double a3 ;
-	double a2 ;
+ 
 
 };
