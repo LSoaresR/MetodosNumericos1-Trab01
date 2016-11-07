@@ -1,72 +1,456 @@
 #include "Dados.h"
-#include "cmath"
-#include "NewthonRaphson.h"
+#include <cmath>
+#include <stdio.h>
+#include <iostream>
+#include <vector>
 
 using namespace std;
 
-    NewthonRaphson::NewthonRaphson(double constante1, double constante2, int n) {
-      this->constante1 = constante1;
-      this->constante2 = constante2;
-    }
-
-    double NewthonRaphson::calcularNRO(double xinicial, double erro1, double erro2) {
-      return 0.3376068;
-    }
-	
-	double NewthonRaphson::FL(double xk, double xw, double lambda) {
-		double f_xk = calcularDerivada(xk);
-		if(abs(f_xk) > lambda) {
-			return f_xk;
-		} else {
-			return calcularDerivada(xw);
-		}	
-	
-	}
-	
-	/*Nesse m�todo ainda falta fazer para os n lambdas de entrada, e ainda falta armazenar os dados obtidos em cada itera��o, e verificar
-	  se o m�todo est� calculando tudo corretamente. Vou fazer isso amanh� dia 03*/
-    double NewthonRaphson::calcularNRFL(double xinicial, double erro1, double erro2, double lambda) {
-    	double xk = xinicial; //xk = 1� x da itera��o
-      double xw = xk; //xw = �ltima aproxima��o obitada tal que |f(xw)| >= 0
-      double xk_p; //xk_p	= valor da pr�xima itera��o do x.
-    	bool verif = true;
-    	if(abs(f(xk)) < erro1)
-    		return xk;
-    	while(verif) {
+class NewtonRaphson {
+ 
+  public:
     	
-    		xk_p = xk - (f(xk)/FL(xk, xw, lambda)); //condi��o FL do xk+1
+    double a3 ;
+    double a2 ;
+    vector<double> lamb;
 
-    		//aki fazer os valores ser armazenados em Dados
-    		
-  			//condi��o de parada
-  			if(abs(f(xk_p) < erro1) && abs(xk_p - xk) < erro2) {
-  				verif = false;
-  			}
-  			
-  			//condi��o para ser o proximo xw
-  			if(abs(calcularDerivada(xk_p)) >= lambda) { 
-      			xw = xk_p;
-  			}
-  			
-  			xk = xk_p;
-		}	
-      	return xk;
+    NewtonRaphson() {
+      this->a3 = 1;
+      this->a2 = 1;
     }
 
-    double NewthonRaphson::f(double x){
-      return constante2*(x*x*x) - 9*constante1*x + 3;
+    /**
+     * Função de deslocamento do pêndulo. Recebe valor do x e calcula a função, com base nos valores setados para a3 e a2.
+     * @param double x Valor do x na função.
+     * @return double Valor da função em x.
+     */
+    double F(double x) {
+      return a3*x*x*x - 9*a2*x + 3;
     }
 
-    double NewthonRaphson::calcularDerivada(double x) {
-      double der_f, h;
+    /**
+     * Calcula a derivada com base no valor de F(x).
+     * @param double x Valor de x a ser calculado para a função, especificada no método F.
+     * @return double Valor da derivada da função F em x.
+     */
+    double calcularDerivada( double x) {
+      double dfx, h;
 
-      h = 0.0000001;
+      h = pow(10, -5);
 
-      der_f = (f(x + h) - f(x))/h;
+      dfx = (F(x + h) - F(x))/h;
 
-      return der_f;
+      return dfx;
     }
 
-    double NewthonRaphson::calibrarSistema(){
-      return 0.0;
+    /**
+     * Calcula a raiz da função definida no método F pelo método de Newton Raphson.
+     * @param double x0 Valor inicial para x.
+     * @param double err1 Valor do Erro 1 (Critério de parada 1)
+     * @param double err2 Valor do Erro 2 (Critério de parada 2)
+     * @param double miter Valor do Número Máximo de iterações para o método (Critério de parada 3)
+     * @return Dados Objeto do tipo Dados contendo os valores de cada iteração do método e a raiz.
+     */
+    Dados newtonRaphson(double x0, double err1, double err2, int miter) {
+      double h;
+      double x1;
+      double root;
+      int iter = 1;
+      Dados dados;
+
+      while(iter < miter) {
+        h = F(x0)/calcularDerivada(x0);
+        x1 = x0 - h;
+        dados.setX(x0); //insere o x0 no vetor de x's
+        dados.setPhi(h); //insere o valor de Phi no vetor de Phi's
+        dados.setFx(F(x0)); //insere o valor de Fx no vetor de Fx's
+        dados.setFx_der(calcularDerivada(x0)); //insere o valor de F'x no vetor de F'x
+
+        if(abs(F(x1))<err1 || abs(x1 - x0) < err2) { //Alterei h para f(x1) - Marcos
+          root=x1;
+          dados.setRaiz(x1);
+          break;
+        }
+        else
+          x0=x1;
+        iter++;
+      }
+      return dados;
     }
+
+    /**
+     * Calcula a raiz da função definida no método F pelo método de Newton Raphson com FL e n Lambdas entrados pelo usuário.
+     * @param double xinicial Valor inicial para x.
+     * @param double erro1 Valor do Erro 1 (Critério de parada 1)
+     * @param double erro2 Valor do Erro 2 (Critério de parada 2)
+     * @param double miter Valor do Número Máximo de iterações para o método (Critério de parada 3)
+     * @param int n Número de lambdas desejado
+     * @return vector<Dados> Vetor de objetos do tipo Dados contendo os dados de cada iteração de cada lambda, bem como a raiz.
+     */
+    vector<Dados> newtonRaphsonFLN(double xinicial, double erro1, double erro2, double miter, int n){
+      double x0 = xinicial;
+      double e1 = erro1;
+      double e2 = erro2;
+      double x1 = 0.0;
+      double ant = 0.0;
+      int k = 0;
+      vector<Dados> data;
+      Dados dados;
+      double lambda[n];
+      double A3[n]; double A2[n];
+      //entrada de dados
+    	for(int i = 0; i < n; i++) {
+    		cout << "Lambda " << i << ": " << endl;
+    		cin >> lambda[i];
+    		cout << "A3 " << i << ": " << endl;
+    		cin >> A3[i];
+    		cout << "A2 " << i << ": " << endl;
+    		cin >> A2[i];
+    	}
+    	
+     for(int i = 0; i < n; i++){
+    	//valores de a3 e a2, irão mudar de acordo os valores no vetor
+    	this->a3 = A3[i];
+    	this->a2 = A2[i];
+    			  
+      if(abs(F(x0)) < e1){
+        dados.setX(x0);
+        data.push_back(dados);
+      }
+      
+      else {
+      
+
+      ant = x0;
+      while(true){
+        dados.setX(x0);
+
+        double h = 0;
+        if(abs(calcularDerivada(x0)) > lambda[i]){
+          h = F(x0)/calcularDerivada(x0);
+          dados.setFx_der(calcularDerivada(x0));
+          //condição de criterio de xw
+          if(abs(calcularDerivada(x0)) >= lambda[i]) {
+          	ant = x0;
+    	    }
+        }else{
+          h = F(x0)/calcularDerivada(ant);
+          dados.setFx_der(calcularDerivada(ant));
+        }
+
+        x1 = x0 - h;
+
+        dados.setPhi(h);
+        dados.setFx(F(x0));
+        
+        if(abs(F(x1)) < e1 || abs(x1-x0) < e2 || k > miter){
+          dados.setRaiz(x1);
+          //data[i].push_back(dados);
+          break;
+    	  //return dados;
+        }
+        x0 = x1;
+        k++;
+      }
+     }
+     
+     data.push_back(dados); 
+    }
+
+    for(int k = 0; k < n; k++) {
+    	this->lamb.push_back(lambda[k]);
+    }
+    return data;
+    }
+
+    /**
+     * Calcula a raiz da função definida no método F pelo método de Newton Raphson com FL e um único Lambda.
+     * @param double xinicial Valor inicial para x.
+     * @param double erro1 Valor do Erro 1 (Critério de parada 1)
+     * @param double erro2 Valor do Erro 2 (Critério de parada 2)
+     * @param double miter Valor do Número Máximo de iterações para o método (Critério de parada 3)
+     * @param double lambda Valor do Lambda a ser calculado
+     * @return Dados Objeto do tipo Dados contendo os valores de cada iteração do método e a raiz.
+     */
+    Dados newtonRaphsonFL(double xinicial, double erro1, double erro2, double miter, double lambda){
+      double x0 = xinicial;
+      double e1 = erro1;
+      double e2 = erro2;
+      double x1 = 0.0;
+      double ant = 0.0;
+      int k = 0;
+      Dados dados;
+      
+      if(abs(F(x0)) < e1){
+        dados.setX(x0);
+        return dados;
+      }
+
+      ant = x0;
+      while(true){
+        dados.setX(x0);
+
+        double h = 0;
+        if(abs(calcularDerivada(x0)) > lambda){
+          h = F(x0)/calcularDerivada(x0);
+          dados.setFx_der(calcularDerivada(x0));
+          //condição de criterio de xw
+          if(abs(calcularDerivada(x0)) >= lambda) {
+          	ant = x0;
+    	  }
+          
+        }
+        else{
+          h = F(x0)/calcularDerivada(ant);
+          dados.setFx_der(calcularDerivada(ant));
+        }
+
+        x1 = x0 - h;
+
+        dados.setPhi(h);
+        dados.setFx(F(x0));
+        
+        if(abs(F(x1)) < e1 || abs(x1-x0) < e2 || k > miter){
+          dados.setRaiz(x1);
+          return dados;
+        }
+        x0 = x1;
+        k++;
+      }
+    }
+
+    /**
+     * Faz a calibragem do sistema, chamando o método newtonRaphsonFL com os seguinte valores:
+     * a3 = 1
+     * a2 = 1
+     * erro = 0.05
+     * lambda = 0.05
+     * @return Dados Objeto do tipo Dados contendo os valores de cada iteração do método e a raiz.
+     */
+    Dados calibrarSistema(){
+      double a3 = 1;
+      double a2 = 1;
+      double erro = 0.05;
+      double lambda = 0.05;
+      double xinicial = 0.5;
+      double miter = 100;
+
+      Dados dados = newtonRaphsonFL(xinicial, erro, erro, miter, lambda);
+      return dados;
+    }
+
+    /**
+     * Faz a chamada ao método newtonRaphson com os valores informados como parâmetros e mostra as informações de cada iteração.
+     * @param double x Valor a ser atribuído a a3.
+     * @param double y Valor a ser atirbuído a a2.
+     * @param double xinicial Valor inicial para x.
+     * @param double erro1 Valor do Erro 1 (Critério de parada 1)
+     * @param double erro2 Valor do Erro 2 (Critério de parada 2)
+     * @param double miter Valor do Número Máximo de iterações para o método (Critério de parada 3)
+     */
+    void quadroRespostaNRO(double x, double y, double xinicial, double erro1, double erro2, double miter){
+      a3 = x;
+      a2 = y;
+      Dados dados = newtonRaphson(xinicial, erro1, erro2, miter);
+
+      cout << endl << endl;
+      cout << "-----------------------------------------" << endl;
+      cout << "Quadro para o NewtonRaphson Original" << endl;
+      cout << "-----------------------------------------" << endl << endl;
+
+      for(int i = 0; i < dados.getX().size(); i++){
+        cout << "     k     | " << i << endl;
+        cout << "    Xk     | " << dados.getX()[i] << endl;
+        cout << "  f(Xk)    | " << dados.getFx()[i] << endl;
+        cout << "  f\'(Xk)   | "<< dados.getFx_der()[i] << endl;
+        if(i == 0)
+          cout << " Intervalo |    ---   "<< endl;
+        else
+          cout << " Intervalo | "<< abs(dados.getX()[i]-dados.getX()[i-1]) << endl;
+        cout << "_______________________________________" << endl << endl;
+      }
+      cout << "    Raiz   | " << dados.getRaiz() << endl;
+      cout << "_______________________________________" << endl << endl;
+    }
+
+    /**
+     * Faz a chamada ao método newtonRaphsonFL com os valores informados como parâmetros e mostra as informações de cada iteração.
+     * @param double x Valor a ser atribuído a a3.
+     * @param double y Valor a ser atirbuído a a2.
+     * @param double xinicial Valor inicial para x.
+     * @param double erro1 Valor do Erro 1 (Critério de parada 1).
+     * @param double erro2 Valor do Erro 2 (Critério de parada 2).
+     * @param double miter Valor do Número Máximo de iterações para o método (Critério de parada 3).
+     * @param double lambda Valor do lambda a ser calculado.
+     */
+    void quadroRespostaNRFL(double x, double y, double xinicial, double erro1, double erro2, double miter, double lambda){
+      a3 = x;
+      a2 = y;
+      Dados dados = newtonRaphsonFL(xinicial, erro1, erro2, miter, lambda);
+
+      cout << endl << endl;
+      cout << "-----------------------------------------" << endl;
+      cout << "Quadro para o NewtonRaphson FL" << endl;
+      cout << "-----------------------------------------" << endl << endl;
+
+      for(int i = 0; i < dados.getX().size(); i++){
+        cout << "     k     | " << i << endl;
+        cout << "    Xk     | " << dados.getX()[i] << endl;
+        cout << "  f(Xk)    | " << dados.getFx()[i] << endl;
+        cout << "  f\'(Xk)   | "<< dados.getFx_der()[i] << endl;
+        if(i == 0)
+          cout << " Intervalo |    ---   "<< endl;
+        else
+          cout << " Intervalo | "<< abs(dados.getX()[i]-dados.getX()[i-1]) << endl;
+        cout << "_______________________________________" << endl << endl;
+      }
+      cout << "    Raiz   | " << dados.getRaiz() << endl;
+      cout << "_______________________________________" << endl << endl;
+    }
+
+    /**
+     * Faz a chamada ao método newtonRaphsonFLN com os valores informados como parâmetros e mostra as informações de cada iteração.
+     * @param double x Valor a ser atribuído a a3.
+     * @param double y Valor a ser atirbuído a a2.
+     * @param double xinicial Valor inicial para x.
+     * @param double erro1 Valor do Erro 1 (Critério de parada 1).
+     * @param double erro2 Valor do Erro 2 (Critério de parada 2).
+     * @param double miter Valor do Número Máximo de iterações para o método (Critério de parada 3).
+     * @param int n Número de Lamdas a serem calculados usando o método.
+     */
+    void quadroRespostaNRFLN(double x, double y, double xinicial, double erro1, double erro2, double miter, int n){
+      a3 = x;
+      a2 = y;
+      vector<Dados> dados = newtonRaphsonFLN(xinicial, erro1, erro2, miter, n);
+
+      cout << endl << endl;
+      cout << "-----------------------------------------" << endl;
+      cout << "Quadro para o NewtonRaphson FL" << endl;
+      cout << "-----------------------------------------" << endl << endl;
+
+      //Laço para todos os lambdas
+      for(int j = 0; j < n ; j++) {
+        cout << "-----------------------------------------" << endl;
+        cout << "LAMBDA: " << lamb[j] <<  endl;
+        cout << "-----------------------------------------" << endl << endl;	
+
+        for(int i = 0; i < dados[j].getX().size(); i++){
+          cout << "     k     | " << i << endl;
+          cout << "    Xk     | " << dados[j].getX()[i] << endl;
+          cout << "  f(Xk)    | " << dados[j].getFx()[i] << endl;
+          cout << "  f\'(Xk)   | "<< dados[j].getFx_der()[i] << endl;
+          if(i == 0)
+            cout << " Intervalo |    ---   "<< endl;
+          else
+            cout << " Intervalo | "<< abs(dados[j].getX()[i]-dados[j].getX()[i-1]) << endl;
+          cout << "_______________________________________" << endl << endl;
+        }
+        cout << "    Raiz   | " << dados[j].getRaiz() << endl;
+        cout << "_______________________________________" << endl << endl;
+        
+      }
+    }
+
+    /**
+     * Faz a chamada ao método calibrarSistema e mostra as informações de cada iteração.
+     */
+    void quadroRespostaCalibragem(){
+      Dados dados = calibrarSistema();
+
+      cout << endl << endl;
+      cout << "-----------------------------------------" << endl;
+      cout << "Quadro para o NewtonRaphsonFL com Sistema Calibrado (a3=1, a2=1, lambda=0.05, erro = 0.05)" << endl;
+      cout << "-----------------------------------------" << endl << endl;
+
+      for(int i = 0; i < dados.getX().size(); i++){
+        cout << "     k     | " << i << endl;
+        cout << "    Xk     | " << dados.getX()[i] << endl;
+        cout << "  f(Xk)    | " << dados.getFx()[i] << endl;
+        cout << "  f\'(Xk)   | "<< dados.getFx_der()[i] << endl;
+        if(i == 0)
+          cout << " Intervalo |    ---   "<< endl;
+        else
+          cout << " Intervalo | "<< abs(dados.getX()[i]-dados.getX()[i-1]) << endl;
+        cout << "_______________________________________" << endl << endl;
+      }
+      cout << "    Raiz   | " << dados.getRaiz() << endl;
+      cout << "_______________________________________" << endl << endl;
+    }
+
+    /**
+     * Faz a chamada ao método newtonRaphson e newtonRaphsonFL com os valores informados como parâmetros e mostra as informações
+     * de cada iteração para cada um deles.
+     * @param double x Valor a ser atribuído a a3.
+     * @param double y Valor a ser atirbuído a a2.
+     * @param double xinicial Valor inicial para x.
+     * @param double erro1 Valor do Erro 1 (Critério de parada 1).
+     * @param double erro2 Valor do Erro 2 (Critério de parada 2).
+     * @param double miter Valor do Número Máximo de iterações para o método (Critério de parada 3).
+     * @param double lambda Valor do lambda a ser calculado.
+     */
+    void quadroComparativo(double x, double y, double xinicial, double erro1, double erro2, double miter, double lambda){
+      a3 = x;
+      a2 = y;
+      int i = 0, j = 0;
+      bool imax = false, jmax = false;
+      Dados dnro = newtonRaphson(xinicial, erro1, erro2, miter);
+      Dados dnrfl = newtonRaphsonFL(xinicial, erro1, erro2, miter, lambda);
+
+      cout << endl << endl;
+      cout << "---------------------------------" << endl;
+      cout << "Quadro Comparativo" << endl;
+      cout << "---------------------------------" << endl << endl;
+
+      while(!imax && !jmax){
+        cout << "        k      | " << i << endl;
+        cout << "_______________________________________" << endl;
+        if(!imax)
+          cout << "NRO     Xk     | " << dnro.getX()[i] << endl;
+        else
+          cout << "NRO     Xk     |  -----   " << endl;
+        if(!jmax)
+          cout << "NRFL    Xk     | " << dnrfl.getX()[j] << endl;
+        else
+          cout << "NRFL    Xk     |  -----   " << endl;
+
+        cout << "_______________________________________" << endl;
+        if(!imax)
+          cout << "NRO    f(Xk)   | " << dnro.getFx()[i] << endl;
+        else
+          cout << "NRO    f(Xk)   |  -----   "  << endl;
+        if(!jmax)
+          cout << "NRFL   f(Xk)   | " << dnrfl.getFx()[j] << endl;
+        else
+          cout << "NRFL   f(Xk)   |  -----   " << endl;
+
+        cout << "_______________________________________" << endl;
+        if(!imax)
+          cout << "NRO    f(Xk)   | " << dnro.getFx_der()[i] << endl;
+        else
+          cout << "NRO    f(Xk)   |  -----   " << endl;
+        if(!jmax)
+          cout << "NRO    f\'(Xk)  | " << dnrfl.getFx_der()[j] << endl;
+        else
+          cout << "NRFL   f\'(Xk)  |  -----   " << endl;
+        
+        cout << "_______________________________________" << endl;
+        if(i == 0 || imax)
+          cout << "NRO  Intervalo |    ---   "<< endl;
+        else
+          cout << "NRO  Intervalo | "<< abs(dnro.getX()[i]-dnro.getX()[i-1]) << endl;
+        if(j == 0 || jmax)
+          cout << "NRFL Intervalo |    ---   "<< endl;
+        else
+          cout << "NRFL Intervalo | "<< abs(dnrfl.getX()[j]-dnro.getX()[j-1]) << endl;
+        
+        cout << "_______________________________________" << endl << endl;
+        i++;
+        j++;
+        imax = i >= dnro.getX().size();
+        jmax = j >= dnrfl.getX().size();
+      }
+      cout << "NRO    Raiz   | " << dnro.getRaiz() << endl;
+      cout << "NRFL   Raiz   | " << dnrfl.getRaiz() << endl;
+      cout << "_______________________________________" << endl << endl;
+    }
+};
