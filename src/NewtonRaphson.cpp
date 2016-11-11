@@ -100,11 +100,11 @@ class NewtonRaphson {
       double A3[n]; double A2[n];
       //entrada de dados
     	for(int i = 0; i < n; i++) {
-    		cout << "Lambda " << i << ": " << endl;
+    		cout << "\nLambda " << i+1 << ": ";
     		cin >> lambda[i];
-    		cout << "A3 " << i << ": " << endl;
+    		cout << "c1 " << i+1 << ": ";
     		cin >> A3[i];
-    		cout << "A2 " << i << ": " << endl;
+    		cout << "c2 " << i+1 << ": ";
     		cin >> A2[i];
     	}
     	
@@ -290,7 +290,7 @@ class NewtonRaphson {
 
       cout << endl << endl;
       cout << "-----------------------------------------" << endl;
-      cout << "Quadro para o NewtonRaphson FL" << endl;
+      cout << "Quadro para o NewtonRaphson FL com um Lambda" << endl;
       cout << "-----------------------------------------" << endl << endl;
 
       for(int i = 0; i < dados.getX().size(); i++){
@@ -325,7 +325,7 @@ class NewtonRaphson {
 
       cout << endl << endl;
       cout << "-----------------------------------------" << endl;
-      cout << "Quadro para o NewtonRaphson FL" << endl;
+      cout << "Quadro para o NewtonRaphson FL com n Lambdas" << endl;
       cout << "-----------------------------------------" << endl << endl;
 
       //Laço para todos os lambdas
@@ -391,17 +391,18 @@ class NewtonRaphson {
     void quadroComparativo(double x, double y, double xinicial, double erro1, double erro2, double miter, double lambda){
       a3 = x;
       a2 = y;
-      int i = 0, j = 0;
-      bool imax = false, jmax = false;
+      int i = 0, j = 0, k = 0;
+      bool imax = false, jmax = false, kmax = false;
       Dados dnro = newtonRaphson(xinicial, erro1, erro2, miter);
       Dados dnrfl = newtonRaphsonFL(xinicial, erro1, erro2, miter, lambda);
+      Dados dnrflc = calibrarSistema();
 
       cout << endl << endl;
       cout << "---------------------------------" << endl;
-      cout << "Quadro Comparativo" << endl;
+      cout << "Quadro Comparativo entre Newton Raphson original (NRO) com FL (NRFL) e Calibrado (NRFLC)" << endl;
       cout << "---------------------------------" << endl << endl;
 
-      while(!imax && !jmax){
+      while(!imax && !jmax && !kmax){
         cout << "        k      | " << i << endl;
         cout << "_______________________________________" << endl;
         if(!imax)
@@ -412,6 +413,10 @@ class NewtonRaphson {
           cout << "NRFL    Xk     | " << dnrfl.getX()[j] << endl;
         else
           cout << "NRFL    Xk     |  -----   " << endl;
+        if(!kmax)
+          cout << "NRFLC   Xk     | " << dnrflc.getX()[k] << endl;
+        else
+          cout << "NRFLC   Xk     |  -----   " << endl;
 
         cout << "_______________________________________" << endl;
         if(!imax)
@@ -422,6 +427,10 @@ class NewtonRaphson {
           cout << "NRFL   f(Xk)   | " << dnrfl.getFx()[j] << endl;
         else
           cout << "NRFL   f(Xk)   |  -----   " << endl;
+        if(!kmax)
+          cout << "NRFLC  f(Xk)   | " << dnrflc.getFx()[k] << endl;
+        else
+          cout << "NRFLC  f(Xk)   |  -----   " << endl;
 
         cout << "_______________________________________" << endl;
         if(!imax)
@@ -429,9 +438,14 @@ class NewtonRaphson {
         else
           cout << "NRO    f(Xk)   |  -----   " << endl;
         if(!jmax)
-          cout << "NRO    f\'(Xk)  | " << dnrfl.getFx_der()[j] << endl;
+          cout << "NRFL   f\'(Xk)  | " << dnrfl.getFx_der()[j] << endl;
         else
           cout << "NRFL   f\'(Xk)  |  -----   " << endl;
+        if(!kmax)
+          cout << "NRFLC  f\'(Xk)  | " << dnrflc.getFx_der()[k] << endl;
+        else
+          cout << "NRFLC  f\'(Xk)  |  -----   " << endl;
+
         
         cout << "_______________________________________" << endl;
         if(i == 0 || imax)
@@ -441,16 +455,23 @@ class NewtonRaphson {
         if(j == 0 || jmax)
           cout << "NRFL Intervalo |    ---   "<< endl;
         else
-          cout << "NRFL Intervalo | "<< abs(dnrfl.getX()[j]-dnro.getX()[j-1]) << endl;
+          cout << "NRFL Intervalo | "<< abs(dnrfl.getX()[j]-dnrfl.getX()[j-1]) << endl;
+        if(k == 0 || kmax)
+          cout << "NRFLC Intervalo |    ---   "<< endl;
+        else
+          cout << "NRFLC Intervalo | "<< abs(dnrflc.getX()[k]-dnrflc.getX()[k-1]) << endl;
         
         cout << "_______________________________________" << endl << endl;
         i++;
         j++;
+        k++;
         imax = i >= dnro.getX().size();
         jmax = j >= dnrfl.getX().size();
+        kmax = k >= dnrflc.getX().size();
       }
       cout << "NRO    Raiz   | " << dnro.getRaiz() << endl;
       cout << "NRFL   Raiz   | " << dnrfl.getRaiz() << endl;
+      cout << "NRFLC  Raiz   | " << dnrflc.getRaiz() << endl;
       cout << "_______________________________________" << endl << endl;
     }
 };
