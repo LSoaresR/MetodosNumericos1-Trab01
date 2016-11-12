@@ -259,8 +259,8 @@ class NewtonRaphson {
      * @return Dados Objeto do tipo Dados contendo os valores de cada iteração do método e a raiz.
      */
     Dados calibrarSistema(){
-      double a3 = 1;
-      double a2 = 1;
+      this->a3 = 1;
+      this->a2 = 1;
       double erro = 0.05;
       double lambda = 0.05;
       double xinicial = 0.5;
