@@ -36,7 +36,7 @@ class NewtonRaphson {
     double calcularDerivada( double x) {
       double dfx, h;
 
-      h = pow(10, -5);
+      h = pow(10, -7);
 
       dfx = (F(x + h) - F(x))/h;
 
@@ -54,7 +54,6 @@ class NewtonRaphson {
     Dados newtonRaphson(double x0, double err1, double err2, int miter) {
       double h;
       double x1;
-      double root;
       int iter = 1;
       Dados dados;
 
@@ -67,7 +66,11 @@ class NewtonRaphson {
         dados.setFx_der(calcularDerivada(x0)); //insere o valor de F'x no vetor de F'x
 
         if(abs(F(x1))<err1 || abs(x1 - x0) < err2) { //Alterei h para f(x1) - Marcos
-          root=x1;
+          dados.setX(x1); //insere o x1 no vetor de x's
+          h = F(x1)/calcularDerivada(x1);
+          dados.setPhi(h); //insere o valor de Phi no vetor de Phi's
+          dados.setFx(F(x1)); //insere o valor de Fx no vetor de Fx's
+          dados.setFx_der(calcularDerivada(x1)); //insere o valor de F'x no vetor de F'x
           dados.setRaiz(x1);
           break;
         }
@@ -144,6 +147,20 @@ class NewtonRaphson {
         dados.setFx(F(x0));
         
         if(abs(F(x1)) < e1 || abs(x1-x0) < e2 || k > miter){
+          dados.setX(x1); //insere o x1 no vetor de x's
+          if(abs(calcularDerivada(x1)) > lambda[i]){
+            h = F(x1)/calcularDerivada(x1);
+            dados.setFx_der(calcularDerivada(x1));
+            //condição de criterio de xw
+            if(abs(calcularDerivada(x1)) >= lambda[i]) {
+              ant = x1;
+            }
+          }else{
+            h = F(x1)/calcularDerivada(ant);
+            dados.setFx_der(calcularDerivada(ant));
+          }
+          dados.setPhi(h); //insere o valor de Phi no vetor de Phi's
+          dados.setFx(F(x1)); //insere o valor de Fx no vetor de Fx's
           dados.setRaiz(x1);
           //data[i].push_back(dados);
           break;
@@ -211,6 +228,20 @@ class NewtonRaphson {
         dados.setFx(F(x0));
         
         if(abs(F(x1)) < e1 || abs(x1-x0) < e2 || k > miter){
+          dados.setX(x1); //insere o x1 no vetor de x's
+          if(abs(calcularDerivada(x1)) > lambda){
+            h = F(x1)/calcularDerivada(x1);
+            dados.setFx_der(calcularDerivada(x1));
+            //condição de criterio de xw
+            if(abs(calcularDerivada(x1)) >= lambda) {
+              ant = x1;
+            }
+          }else{
+            h = F(x1)/calcularDerivada(ant);
+            dados.setFx_der(calcularDerivada(ant));
+          }
+          dados.setPhi(h); //insere o valor de Phi no vetor de Phi's
+          dados.setFx(F(x1)); //insere o valor de Fx no vetor de Fx's
           dados.setRaiz(x1);
           return dados;
         }
@@ -253,6 +284,7 @@ class NewtonRaphson {
       a2 = y;
       Dados dados = newtonRaphson(xinicial, erro1, erro2, miter);
 
+      cout.precision(19);
       cout << endl << endl;
       cout << "-----------------------------------------" << endl;
       cout << "Quadro para o NewtonRaphson Original" << endl;
@@ -288,6 +320,7 @@ class NewtonRaphson {
       a2 = y;
       Dados dados = newtonRaphsonFL(xinicial, erro1, erro2, miter, lambda);
 
+      cout.precision(17);
       cout << endl << endl;
       cout << "-----------------------------------------" << endl;
       cout << "Quadro para o NewtonRaphson FL com um Lambda" << endl;
@@ -323,6 +356,7 @@ class NewtonRaphson {
       a2 = y;
       vector<Dados> dados = newtonRaphsonFLN(xinicial, erro1, erro2, miter, n);
 
+      cout.precision(17);
       cout << endl << endl;
       cout << "-----------------------------------------" << endl;
       cout << "Quadro para o NewtonRaphson FL com n Lambdas" << endl;
@@ -333,7 +367,6 @@ class NewtonRaphson {
         cout << "-----------------------------------------" << endl;
         cout << "LAMBDA: " << lamb[j] <<  endl;
         cout << "-----------------------------------------" << endl << endl;	
-
         for(int i = 0; i < dados[j].getX().size(); i++){
           cout << "     k     | " << i << endl;
           cout << "    Xk     | " << dados[j].getX()[i] << endl;
@@ -357,6 +390,7 @@ class NewtonRaphson {
     void quadroRespostaCalibragem(){
       Dados dados = calibrarSistema();
 
+      cout.precision(17);
       cout << endl << endl;
       cout << "-----------------------------------------" << endl;
       cout << "Quadro para o NewtonRaphsonFL com Sistema Calibrado (a3=1, a2=1, lambda=0.05, erro = 0.05)" << endl;
@@ -397,6 +431,7 @@ class NewtonRaphson {
       Dados dnrfl = newtonRaphsonFL(xinicial, erro1, erro2, miter, lambda);
       Dados dnrflc = calibrarSistema();
 
+      cout.precision(17);
       cout << endl << endl;
       cout << "---------------------------------" << endl;
       cout << "Quadro Comparativo entre Newton Raphson original (NRO) com FL (NRFL) e Calibrado (NRFLC)" << endl;
@@ -434,9 +469,9 @@ class NewtonRaphson {
 
         cout << "_______________________________________" << endl;
         if(!imax)
-          cout << "NRO    f(Xk)   | " << dnro.getFx_der()[i] << endl;
+          cout << "NRO    f\'(Xk)  | " << dnro.getFx_der()[i] << endl;
         else
-          cout << "NRO    f(Xk)   |  -----   " << endl;
+          cout << "NRO    f\'(Xk)  |  -----   " << endl;
         if(!jmax)
           cout << "NRFL   f\'(Xk)  | " << dnrfl.getFx_der()[j] << endl;
         else
