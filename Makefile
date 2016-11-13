@@ -1,17 +1,10 @@
 
-LIB_DIR  = lib/
-SRC_DIR  = src/
-TEST_DIR = test/
+CFLAGS += -Wall -Wextra
 
-CFLAGS += -Wall -Wextra -I $(SRC_DIR) -I $(LIB_DIR) -I $(TEST_DIR)
+all: main.o
 
-all: newthon-raphson.o test.o
-
-newthon-raphson.o:
-	g++ src/main.cpp src/newthon-raphson.cpp src/Dados.cpp -o make/newthon-raphson
-
-test.o:
-	g++ test/main_test.cpp -o make/test $(CFLAGS)
+main.o:
+	g++ src/main.cpp src/Dados.cpp src/NewtonRaphson.cpp -o make/main $(CFLAGS)
 
 clean:
 	rm make/*
