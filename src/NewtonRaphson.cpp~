@@ -91,6 +91,7 @@ class NewtonRaphson {
      * @return vector<Dados> Vetor de objetos do tipo Dados contendo os dados de cada iteração de cada lambda, bem como a raiz.
      */
     vector<Dados> newtonRaphsonFLN(double xinicial, double erro1, double erro2, double miter, int n){
+      double x0 = xinicial;
       double e1 = erro1;
       double e2 = erro2;
       double x1 = 0.0;
@@ -111,7 +112,6 @@ class NewtonRaphson {
     	
      for(int i = 0; i < n; i++){
 	Dados dados;
-	double x0 = xinicial;
     	//valores de a3 e a2, irão mudar de acordo os valores no vetor
     	this->a3 = A3[i];
     	this->a2 = A2[i];
